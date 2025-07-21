@@ -1,0 +1,11 @@
+In main directory: gallery/
+flutter_rust_bridge_codegen generate --rust-input crate::api --rust-root rust/ --dart-output lib/core/bridge --dart-format-line-length 120
+cd rust
+just build-desktop
+flutter run -d macos / xcode build
+
+
+
+if you run pod install manually, run flutter pub get first
+
+

@@ -1,0 +1,6 @@
+Step	Tool	Purpose
+1. Generate Dart ↔ Rust bindings	flutter_rust_bridge_codegen generate --rust-input crate::api --rust-root rust/ --dart-output lib/core/bridge --dart-format-line-length 120	Writes code to bridge Dart and Rust
+2. Compile Rust to WASM	cd rust && just build-web	Compiles Rust + bindings to .wasm
+3. Build Flutter app	flutter build web	Compiles Dart app and bundles the WASM loader
+4. Copy over the files from build into web folder
+
