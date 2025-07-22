@@ -1,0 +1,83 @@
+# Set the Rust target dir so builds are separate from Flutter
+set dotenv-load := true
+set shell := ["bash", "-cu"]
+
+# Change this path if your Android jniLibs dir is elsewhere
+ANDROID_LIBS_DIR := "{{cwd}}/../android/app/src/main/jniLibs"
+
+# ------------------------------
+# 🟢 Build Rust for Android
+# ------------------------------
+
+build-android:
+  cargo ndk -t armeabi-v7a -o {{ANDROID_LIBS_DIR}} build --release
+  cargo ndk -t arm64-v8a  -o {{ANDROID_LIBS_DIR}} build --release
+  cargo ndk -t x86_64     -o {{ANDROID_LIBS_DIR}} build --release
+
+# ------------------------------
+# 🍏 Build Rust for iOS (device)
+# ------------------------------
+
+build-ios:
+  cargo build --target aarch64-apple-ios --release
+
+# ------------------------------
+# 🧪 Build Rust for iOS Simulator (Intel Macs)
+# ------------------------------
+
+build-ios-sim:
+  cargo build --target x86_64-apple-ios --release
+
+# ------------------------------
+# 🔁 Universal iOS Build (Apple Silicon)
+# Combine device + simulator into one .a
+# ------------------------------
+
+universal-ios:
+  mkdir -p target/universal-ios/release
+  lipo -create \
+    target/aarch64-apple-ios/release/librust_lib.a \
+    target/x86_64-apple-ios/release/librust_lib.a \
+    -output target/universal-ios/release/librust_lib.a
+
+# ------------------------------
+# 🌐 Build Rust for Web (WASM)
+# ------------------------------
+
+build-web:
+  cargo build --target wasm32-unknown-unknown --release
+
+# ------------------------------
+# 🖥️ Build Rust for Desktop (macOS)
+# ------------------------------
+
+build-desktop:
+  cargo build --release
+
+# ------------------------------
+# 🚀 Build Everything
+# ------------------------------
+
+build-all:
+  just build-android
+  just build-ios
+  just build-ios-sim
+  just universal-ios
+  just build-web
+  just build-desktop
+
+# ------------------------------
+# 🧹 Clean all builds
+# ------------------------------
+
+clean:
+  cargo clean
+  rm -rf target/universal-ios
+
+# ------------------------------
+# 🔄 Rebuild Everything (clean + build)
+# ------------------------------
+
+rebuild:
+  just clean
+  just build-all
